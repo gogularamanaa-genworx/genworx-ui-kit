@@ -1,0 +1,185 @@
+<mat-card class="trinta-card to-do-list-card mb-25 bg-white border-none d-block">
+  <mat-card-content>
+    <div class="to-do-list-table">
+      <div class="table-responsive">
+        <table
+          mat-table
+          [dataSource]="hasData() ? dataSource : emptyData()"
+          matSort
+          (matSortChange)="handleSortChange($event)"
+        >
+          <!-- Dynamic columns based on configuration -->
+          <ng-container
+            *ngFor="let column of columns(); trackBy: trackByColumn"
+            [matColumnDef]="column.key"
+          >
+            <!-- Header -->
+            <th
+              mat-header-cell
+              *matHeaderCellDef
+              [mat-sort-header]="column.sortable ? column.key : ''"
+              [disabled]="!column.sortable"
+              [style.width]="column.width"
+            >
+              {{ column.header }}
+              <mat-icon *ngIf="column.sortable" class="sort-icon">swap_vert</mat-icon>
+            </th>
+
+            <!-- Cell content based on column type -->
+            <td
+              mat-cell
+              *matCellDef="let row; let i = index"
+              [style.width]="column.width"
+              [style.background-color]="getRowHighlight(row)"
+            >
+              <!-- Serial Number -->
+              <ng-container *ngIf="column.type === 'sno'">
+                {{ i + 1 }}
+              </ng-container>
+
+              <!-- Image with text -->
+              <ng-container *ngIf="column.type === 'image'">
+                <div class="cell-with-image">
+                  <img
+                    [ngSrc]="row[column.imageKey || 'image']"
+                    [alt]="row[column.key]"
+                    class="row-image"
+                  />
+                  <span class="image-text">{{ row[column.key] }}</span>
+                </div>
+              </ng-container>
+
+              <!-- Text -->
+              <ng-container *ngIf="column.type === 'text'">
+                {{ row[column.key] }}
+              </ng-container>
+
+              <!-- Badge (like Email Pending) -->
+              <ng-container *ngIf="column.type === 'badge'">
+                <span class="text-value">{{ row[column.key] }}</span>
+                <span
+                  *ngIf="row[column.badgeKey || 'badge']"
+                  class="inline-badge"
+                  [style.color]="row[column.badgeColorKey || 'badgeColor'] || '#f59e0b'"
+                  [style.border-color]="row[column.badgeColorKey || 'badgeColor'] || '#f59e0b'"
+                >
+                  {{ row[column.badgeKey || 'badge'] }}
+                </span>
+              </ng-container>
+
+              <!-- Currency -->
+              <ng-container *ngIf="column.type === 'currency'">
+                {{ formatCurrency(row[column.key], column.currencySymbol) }}
+              </ng-container>
+
+              <!-- Date -->
+              <ng-container *ngIf="column.type === 'date'">
+                {{ row[column.key] }}
+              </ng-container>
+
+              <!-- Score (percentage badge) -->
+              <ng-container *ngIf="column.type === 'score'">
+                <span
+                  *ngIf="
+                    row[column.key] !== null &&
+                    row[column.key] !== undefined &&
+                    row[column.key] !== 'N/A'
+                  "
+                  class="score-badge"
+                  [style.color]="getScoreColor(column, row[column.key])"
+                  [style.border-color]="getScoreColor(column, row[column.key])"
+                >
+                  {{ row[column.key] }}%
+                </span>
+                <span
+                  *ngIf="
+                    row[column.key] === null ||
+                    row[column.key] === undefined ||
+                    row[column.key] === 'N/A'
+                  "
+                  class="score-na"
+                >
+                  N/A
+                </span>
+              </ng-container>
+
+              <!-- Status badge -->
+              <ng-container *ngIf="column.type === 'status'">
+                <span
+                  class="status-badge"
+                  [style.color]="getStatusColor(column, row[column.key])"
+                  [style.border-color]="getStatusColor(column, row[column.key])"
+                >
+                  {{ row[column.key] }}
+                </span>
+              </ng-container>
+
+              <!-- Toggle -->
+              <ng-container *ngIf="column.type === 'toggle'">
+                <mat-slide-toggle
+                  [checked]="row[column.key]"
+                  (change)="onToggleChange($event, row)"
+                  color="primary"
+                >
+                </mat-slide-toggle>
+              </ng-container>
+
+              <!-- Action buttons -->
+              <ng-container *ngIf="column.type === 'action'">
+                <div class="action-buttons">
+                  <button
+                    mat-icon-button
+                    *ngFor="let action of row[column.key]; trackBy: trackByAction"
+                    [matTooltip]="action.toolTip || ''"
+                    [style.color]="action.color"
+                    (click)="onActionClick(action, row); $event.stopPropagation()"
+                  >
+                    <mat-icon>{{ action.icon }}</mat-icon>
+                    <span *ngIf="action.name" class="action-name">{{ action.name }}</span>
+                  </button>
+                </div>
+              </ng-container>
+            </td>
+          </ng-container>
+
+          <!-- Empty row column -->
+          <ng-container matColumnDef="empty-row">
+            <th mat-header-cell *matHeaderCellDef></th>
+            <td
+              mat-cell
+              *matCellDef="let element"
+              [attr.colspan]="displayedColumns().length"
+              class="empty-row-cell"
+            >
+              {{ noDataMessage() }}
+            </td>
+          </ng-container>
+
+          <!-- Header and Row definitions -->
+          <tr mat-header-row *matHeaderRowDef="displayedColumns()"></tr>
+          <tr
+            mat-row
+            *matRowDef="let row; columns: hasData() ? displayedColumns() : ['empty-row']"
+            (click)="onRowClick(row)"
+            (keydown.enter)="onRowClick(row)"
+            tabindex="0"
+            class="data-row"
+          ></tr>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <mat-paginator
+        *ngIf="showPagination()"
+        [pageSizeOptions]="pageSizeOptions()"
+        [pageSize]="pageSize()"
+        [length]="pageLength() || dataSource.data.length"
+        [pageIndex]="currentPage()"
+        (page)="handlePageEvent($event)"
+        showFirstLastButtons
+        aria-label="Select page"
+      >
+      </mat-paginator>
+    </div>
+  </mat-card-content>
+</mat-card>

@@ -1,10 +1,10 @@
 {
-  "name": "genbooks-ui-kit",
-  "version": "1.0.3",
+  "name": "genworkx-ui-kit",
+  "version": "1.0.4",
   "publishConfig": {
     "access": "public"
   },
-  "description": "GenWorx UI Kit - Reusable Angular components library",
+  "description": "GenWorkx UI Kit - Reusable Angular components library",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -26,6 +26,38 @@
     "@angular/platform-browser": "^20.0.0",
     "@angular/platform-browser-dynamic": "^20.0.0",
     "rxjs": "^7.8.0"
+  },
+  "peerDependenciesMeta": {
+    "@angular/animations": {
+      "optional": true
+    },
+    "@angular/cdk": {
+      "optional": true
+    },
+    "@angular/common": {
+      "optional": true
+    },
+    "@angular/compiler": {
+      "optional": true
+    },
+    "@angular/core": {
+      "optional": true
+    },
+    "@angular/forms": {
+      "optional": true
+    },
+    "@angular/material": {
+      "optional": true
+    },
+    "@angular/platform-browser": {
+      "optional": true
+    },
+    "@angular/platform-browser-dynamic": {
+      "optional": true
+    },
+    "rxjs": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@angular/animations": "20.3.15",
