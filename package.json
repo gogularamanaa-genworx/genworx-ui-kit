@@ -1,6 +1,6 @@
 {
   "name": "genworkx-ui-kit",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "publishConfig": {
     "access": "public"
   },
@@ -10,6 +10,18 @@
     "type": "git",
     "url": "git+https://github.com/genworx/ui-kit.git"
   },
+  "main": "./fesm2022/genworkx-ui-kit.mjs",
+  "module": "./fesm2022/genworkx-ui-kit.mjs",
+  "typings": "./index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "esm2022": "./esm2022/genworkx-ui-kit.mjs",
+      "esm": "./esm2022/genworkx-ui-kit.mjs",
+      "default": "./fesm2022/genworkx-ui-kit.mjs"
+    }
+  },
+  "sideEffects": false,
   "scripts": {
     "build": "ng-packagr -p ng-package.json",
     "build:watch": "ng-packagr -p ng-package.json --watch",
